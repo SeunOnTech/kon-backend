@@ -1,0 +1,69 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String   @id @default(uuid())
+  walletAddress String   @unique @map("wallet_address")
+  username      String?
+  email         String?
+  avatarUrl     String?  @map("avatar_url")
+  preferences   Json?
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  transactions  Transaction[]
+
+  @@map("users")
+}
+
+model Game {
+  id               String   @id @default(uuid())
+  contractAddress  String   @map("contract_address")
+  networkId        Int      @map("network_id")
+  tokenName        String?  @map("token_name")
+  entryFee         String   @map("entry_fee")
+  timerDuration    Int      @map("timer_duration")
+  status           String   @default("active")
+  currentVault     String   @default("0") @map("current_vault")
+  lastPlayerAddress String? @map("last_player_address")
+  lastWagerTime    DateTime? @map("last_wager_time")
+  winnerAddress    String?  @map("winner_address")
+  winnerPrize      String?  @map("winner_prize")
+  playerCount      Int?     @default(0) @map("player_count")
+  endedAt          DateTime? @map("ended_at")
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  @@map("games")
+}
+
+model Transaction {
+  id              String   @id @default(uuid())
+  userId          String   @map("user_id")
+  transactionHash String   @unique @map("transaction_hash")
+  fromAddress     String   @map("from_address")
+  toAddress       String   @map("to_address")
+  amount          String
+  networkId       Int      @map("network_id")
+  status          String   @default("pending")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  user            User     @relation(fields: [userId], references: [id])
+
+  @@map("transactions")
+}

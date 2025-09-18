@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: king_of_night_db
+    environment:
+      POSTGRES_DB: king_of_night
+      POSTGRES_USER: king_user
+      POSTGRES_PASSWORD: secure_password_2024
+    ports:
+      - "15432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: king_of_night_redis
+    ports:
+      - "16379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  redis_data:

@@ -6,7 +6,6 @@ import compression from 'compression';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
 import { PrismaClient } from '@prisma/client';
-import { createClient } from 'redis';
 import { ethers } from 'ethers';
 import { GameWebSocketServer } from './websocket/WebSocketServer';
 import entryFeeRoutes from './routes/entryFee';
@@ -25,7 +24,6 @@ import { errorHandler, notFoundHandler } from './middleware/errorHandler';
 const app = express();
 const server = createServer(app);
 const prisma = new PrismaClient();
-const redis = createClient({ url: process.env.REDIS_URL });
 
 const wsServer = new GameWebSocketServer(server, prisma);
 
@@ -47,9 +45,6 @@ app.get('/health', async (req, res) => {
     // Check database connection
     await prisma.$queryRaw`SELECT 1`;
     
-    // Check Redis connection
-    await redis.ping();
-    
     res.json({
       success: true,
       message: 'King of Night API is running',
@@ -61,8 +56,7 @@ app.get('/health', async (req, res) => {
       environment: process.env.NODE_ENV,
       version: '1.0.0',
       services: {
-        database: 'connected',
-        redis: 'connected'
+        database: 'connected'
       }
     });
   } catch (error) {
@@ -286,10 +280,6 @@ app.use(errorHandler);
 // Start server
 async function startServer() {
   try {
-    // Connect to Redis
-    await redis.connect();
-    console.log('Redis connected');
-    
     // Test database connection
     await prisma.$connect();
     console.log('Database connected');
@@ -320,14 +310,12 @@ async function startServer() {
 process.on('SIGTERM', async () => {
   console.log('SIGTERM received, shutting down gracefully');
   await prisma.$disconnect();
-  await redis.quit();
   process.exit(0);
 });
 
 process.on('SIGINT', async () => {
   console.log('SIGINT received, shutting down gracefully');
   await prisma.$disconnect();
-  await redis.quit();
   process.exit(0);
 });
 

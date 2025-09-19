@@ -41,7 +41,9 @@ app.use(cors({
       'http://localhost:3000',
       'http://localhost:3001',
       'https://aws.deserialize.xyz',
-      'https://www.aws.deserialize.xyz'
+      'https://www.aws.deserialize.xyz',
+      'kon-frontend.vercel.app',
+      'https://kon-frontend.vercel.app'
     ];
     
     if (allowedOrigins.indexOf(origin) !== -1) {
